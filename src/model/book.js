@@ -31,15 +31,9 @@ const bookSchema = mongoose.Schema({
 // });
 
 bookSchema.post('remove', (book, done) => {
-  console.log('..... book post remove hook');
-  console.log('.... title', book.title);
-  console.log('......author._id', book.author._id);
   Author.findById(book.author._id)
     .then((author) => {
-      console.log('..... author found');
-      console.log('.... author obj', JSON.stringify(author, null, 2));
       author.authored = author.authored.filter(bId => bId.toString() !== book._id.toString());
-      console.log('.... FILTERED author obj', JSON.stringify(author, null, 2));
       return author.save();
     })
     .then(done())

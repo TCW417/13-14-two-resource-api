@@ -28,9 +28,6 @@ modelRouter.get('/api/read/:model', (request, response, next) => {
       return Model.find();
     })
     .then((foundModel) => {
-  //     console.log('>>>>> GET foundModel obj');
-  // console.log(JSON.stringify(foundModel, null, 2));
-  // console.log('>>>>>>>>>> DONE >>>>>>>>>');
       logger.log(logger.INFO, `MODEL-ROUTER: RETURNING ALL FROM ${request.params.model}`);
       return response.status(200).json(foundModel);
     })
