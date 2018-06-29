@@ -18,10 +18,10 @@ const authorSchema = mongoose.Schema({
   }],
 }, { timestamps: true });
 
-authorSchema.pre('findOne', function preQueryHook(done) {
-  this.populate('authored');
-  done();
-});
+// authorSchema.pre('findOne', function preQueryHook(done) {
+  // this.populate('authored');
+  // done();
+// });
 
 authorSchema.post('remove', (author) => {
   for (let i = 0; i < author.authored.length; i++) {

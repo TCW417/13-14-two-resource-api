@@ -25,15 +25,15 @@ const bookSchema = mongoose.Schema({
   },
 }, { timestamps: true });
 
-bookSchema.pre('findOne', function preQueryHook(done) {
-  this.populate('author');
-  done();
-});
+// bookSchema.pre('findOne', function preQueryHook(done) {
+//   // this.populate('author');
+//   done();
+// });
 
 bookSchema.post('remove', (book, done) => {
   Author.findById(book.author._id)
     .then((author) => {
-      author.authored = author.authored.filter(bId => bId !== book._id.toString());
+      author.authored = author.authored.filter(bId => bId.toString() !== book._id.toString());
       return author.save();
     })
     .then(done())
