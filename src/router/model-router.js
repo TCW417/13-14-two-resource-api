@@ -21,19 +21,22 @@ modelRouter.post('/api/read/:model', (request, response, next) => {
     .catch(next);
 });
 
+modelRouter.get('/api/read/:model', (request, response, next) => {
+  const Model = request.model;
+  Model.init()
+    .then(() => {
+      return Model.find();
+    })
+    .then((foundModel) => {
+      logger.log(logger.INFO, `MODEL-ROUTER: RETURNING ALL FROM ${request.params.model}`);
+      return response.status(200).json(foundModel);
+    })
+    .catch(next);
+});
+
 modelRouter.get('/api/read/:model/:id?', (request, response, next) => {
   if (!request.params.id) {
-    // return next(new HttpErrors(400, `No ${request.model} id entered`));
-    const Model = request.model;
-    Model.init()
-      .then(() => {
-        return Model.find();
-      })
-      .then((foundModel) => {
-        logger.log(logger.INFO, `MODEL-ROUTER: FOUND THE MODEL ${JSON.stringify(foundModel)}`);
-        return response.status(200).json(foundModel);
-      })
-      .catch(next);
+    return next(new HttpErrors(400, `No ${request.model} id entered`));
   }
   const Model = request.model;
   Model.init()
@@ -69,21 +72,38 @@ modelRouter.delete('/api/read/:model/:id?', (request, response, next) => {
   if (!request.params.id) {
     return next(new HttpErrors(400, `No ${request.model} id entered`));
   }
-  const Model = request.model;
-  Model.init()
-    .then(() => {
-      return Model.findById(request.params.id);
-    })
-    .then((resource) => {
-      if (!resource) { // findBy return null --> book not found 
-        return next(new HttpErrors(404, `Attempt to delete non-existant ${request.model}`));
-      }
-      return resource.remove();
-    })
-    .then(() => {
-      return response.sendStatus(200);
-    })
-    .catch(next);
+  let routeComplete = false;
+  if (request.params.id === '__DELETE') {
+    routeComplete = true;
+    const Model = request.model;
+    Model.init()
+      .then(() => {
+        return Model.remove();
+      })
+      .then(() => {
+        return response.sendStatus(200);
+      })
+      .catch((err) => {
+        return next(err);
+      });
+  }
+  if (!routeComplete) {
+    const Model = request.model;
+    Model.init()
+      .then(() => {
+        return Model.findById(request.params.id);
+      })
+      .then((resource) => {
+        if (!resource) { // findBy return null --> book not found 
+          return next(new HttpErrors(404, `Attempt to delete non-existant ${request.model}`));
+        }
+        return resource.remove();
+      })
+      .then(() => {
+        return response.sendStatus(200);
+      })
+      .catch(next);
+  }
   return undefined;
 });
 
