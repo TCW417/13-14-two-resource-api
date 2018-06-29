@@ -40,7 +40,7 @@ const startServer = () => {
     })
     .catch((err) => {
       console.log('>>>>>> startServer err:', err);
-      throw err;
+      // throw err;
     });
 };
 
